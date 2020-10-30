@@ -22,10 +22,82 @@ from p_modules import m_modules as pp
 from p_analysis import m_analysis as an
 
 
+#########################################################3
+
+#INTRODUCTION
 
 st.title('Introduction')
+st.text('This is some text.')
+
+st.markdown('Streamlit is **_really_ cool**.')
+
+st.header('This is a header')
+st.subheader('This is a subheader')
+
+########################################################
+
+# METODOLOGY
+
 st.title('Metodology')
+st.text('This is some text.')
 st.write("Josue")
+
+###########
+
+# Por si acaso
+
+#df = pd.DataFrame(
+#    np.random.randn(50, 20),
+#    columns=('col %d' % i for i in range(20)))
+
+#st.dataframe(df)  # Same as st.write(df)
+
+#############
+
+st.latex(r'''
+     a + ar + a r^2 + a r^3 + \cdots + a r^{n-1} =
+     \sum_{k=0}^{n-1} ar^k =
+     a \left(\frac{1-r^{n}}{1-r}\right)
+     ''')
+     
+
+streamlit.image(image, caption=None, width=None, use_column_width=False, clamp=False, channels='RGB', output_format='auto', **kwargs)
+
+st.latex(r'''
+     a + ar + a r^2 + a r^3 + \cdots + a r^{n-1} =
+     \sum_{k=0}^{n-1} ar^k =
+     a \left(\frac{1-r^{n}}{1-r}\right)
+     ''')
+     
+
+code = '''def hello():
+     print("Hello, Streamlit!")'''
+     
+st.code(code, language='python')
+
+st.graphviz_chart('''
+    digraph {
+        run -> intr
+        intr -> runbl
+        runbl -> run
+        run -> kernel
+        kernel -> zombie
+        kernel -> sleep
+        kernel -> runmem
+        sleep -> swap
+        swap -> runswap
+        runswap -> new
+        runswap -> runmem
+        new -> runmem
+        sleep -> runmem
+    }
+''')
+
+
+##########################################################
+
+#DEMO
+
 st.title('USA Coronavirus evolution')
 
 
@@ -40,6 +112,17 @@ option = st.selectbox(
      states)
 
 st.write('You selected:', option)
+
+
+# Para los modos de funcionamiento
+
+#options = st.multiselect(
+#     'What are your favorite colors',
+#     ['Green', 'Yellow', 'Red', 'Blue'],
+#     ['Yellow', 'Red'])
+
+#st.write('You selected:', options)
+
 
 
 #PATHS
@@ -101,4 +184,10 @@ ax[0][2].legend(loc='upper left')
 
 st.pyplot(fig)
 
-	
+# ESTO FUERA BUENO PARA EL TIEMPO
+
+#streamlit.slider(label, min_value=None, max_value=None, value=None, step=None, format=None, key=None)	
+
+
+
+
