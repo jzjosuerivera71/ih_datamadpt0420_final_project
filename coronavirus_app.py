@@ -60,8 +60,8 @@ st.latex(r'''
      a \left(\frac{1-r^{n}}{1-r}\right)
      ''')
      
-
-streamlit.image(image, caption=None, width=None, use_column_width=False, clamp=False, channels='RGB', output_format='auto', **kwargs)
+#image = ??????
+#st.image(image, caption=None, width=None, use_column_width=False, clamp=False, channels='RGB', output_format='auto', **kwargs)
 
 st.latex(r'''
      a + ar + a r^2 + a r^3 + \cdots + a r^{n-1} =
@@ -70,8 +70,28 @@ st.latex(r'''
      ''')
      
 
-code = '''def hello():
-     print("Hello, Streamlit!")'''
+code = '''class LSTM(nn.Module):
+    		def __init__(self, input_dim, output_dim, hidden_layer_size, num_layers):
+        		super(LSTM, self).__init__()
+
+        		self.input_dim = input_dim
+        		self.output_dim = output_dim
+        		self.hidden_layer_size = hidden_layer_size
+        		self.num_layers = num_layers
+
+        		self.lstm = nn.LSTM(input_dim, hidden_layer_size, num_layers, batch_first=True)
+        		self.fc = nn.Linear(hidden_layer_size, output_dim)
+
+    		def forward(self, input):
+        		hidden_state = torch.zeros(self.num_layers, input.size(0), self.hidden_layer_size)
+        		cell_state = torch.zeros(self.num_layers, input.size(0), self.hidden_layer_size)
+
+        		output, (hidden_state, cell_state) = self.lstm(input, (hidden_state, cell_state))
+        		out = hidden_state.view(-1, 2)
+
+        		out = self.fc(out)
+
+        		return out'''
      
 st.code(code, language='python')
 
@@ -97,32 +117,28 @@ st.graphviz_chart('''
 ##########################################################
 
 #DEMO
-
 st.title('USA Coronavirus evolution')
 
-
+# Data
 cases = pd.read_csv('data/acumulated_cases.csv')
 deaths = pd.read_csv('data/acumulated_deaths.csv')
 states = tuple(cases.columns)
 
 
 # Dropdown
-option = st.selectbox(
+modes = ('Cases','Deaths')
+option_1 = st.selectbox(
+     'What do you want to know?',
+     modes)
+
+st.write('You selected:', option_1)
+
+
+option_2 = st.selectbox(
      'Which state are you interested?',
      states)
 
-st.write('You selected:', option)
-
-
-# Para los modos de funcionamiento
-
-#options = st.multiselect(
-#     'What are your favorite colors',
-#     ['Green', 'Yellow', 'Red', 'Blue'],
-#     ['Yellow', 'Red'])
-
-#st.write('You selected:', options)
-
+st.write('You selected:', option_2)
 
 
 #PATHS
@@ -132,17 +148,15 @@ deaths_model_path = 'models/LSTM_deaths.pkl'
 
 #DATA TO PREDICT
 
-state_case = cases[[option]].T
-deaths_case = deaths[[option]].T
+state_case = cases[[option_2]].T
+deaths_case = deaths[[option_2]].T
 
 	
-#plt.plot(data_predict, c='r', label='LSTM Predictions')
-#plt.plot(actual_data, c='b', label='Actual Data')
-#plt.axvline(x=training_size, linestyle='--')
+# Lo que falta
+
 #plt.ylabel('# of Confirmed Cases')
 #plt.xlabel('# of Days From First Case')
-#plt.legend(loc='upper left')
-#plt.savefig('USCases.png')
+
 
 ###############################
 
@@ -150,37 +164,56 @@ deaths_case = deaths[[option]].T
 # CASES
 cases_size = pp.Size(state_case)
 cases_predict = pp.Prediction(state_case,cases_model_path)
-#actual_cases = pp.Actual(state_case)
+actual_cases = pp.Actual(state_case)
 
 #DEATHS
-#deaths_size = pp.Size(deaths_case)
-#deaths_predict = pp.Prediction(deaths_case,deaths_model_path)
-#actual_deaths = pp.Actual(deaths_case)
+deaths_size = pp.Size(deaths_case)
+deaths_predict = pp.Prediction(deaths_case,deaths_model_path)
+actual_deaths = pp.Actual(deaths_case)
 
 # ANALISIS
 
-growth = an.growth_factor(cases_predict)
+#growth = an.growth_factor(cases_predict)
 #an.growth_ratio(confirmed)
 
-plt.style.use('fivethirtyeight') 
-fig, ax = plt.subplots(ncols=3, nrows=2, figsize=(15, 10))
-#ax[0][0].set_title('Cases')
-#ax[0][0].plot(cases_predict, c='r', label='LSTM acumulated cases predictions')
-#ax[0][0].plot(actual_cases, c='b', label='Actual Data')
-#ax[0][0].axvline(x=cases_size, linestyle='--')
-#ax[0][0].legend(loc='upper left')
 
-#ax[0][1].set_title('Deaths')
-#ax[0][1].plot(deaths_predict, c='r', label='LSTM acumulated deaths predictions')
-#ax[0][1].plot(actual_deaths, c='b', label='Actual Data')
-#ax[0][1].axvline(x=deaths_size, linestyle='--')
-#ax[0][1].legend(loc='upper left')
+# PLOT
 
-ax[0][2].set_title('Growth Factor')
-ax[0][2].plot(growth, c='r', label='Growth Factor')
+plt.style.use('fivethirtyeight')
+fig, ax = plt.subplots(ncols=2, nrows=1, figsize=(15, 6))
+if  option_1 == 'Cases':
+	#fig, ax = plt.subplots(ncols=2, nrows=1, figsize=(15, 6))
+	ax[0].set_title('Cases')
+	ax[0].plot(cases_predict, c='r', label='LSTM acumulated cases predictions')
+	ax[0].plot(actual_cases, c='b', label='Actual Data')
+	ax[0].axvline(x=cases_size, linestyle='--')
+	ax[0].legend(loc='upper left')
+	#ax[1].set_title('Deaths')
+	#ax[1].plot(deaths_predict, c='r', label='LSTM acumulated deaths predictions')
+	#ax[1].plot(actual_deaths, c='b', label='Actual Data')
+	#ax[1].axvline(x=deaths_size, linestyle='--')
+	#ax[1].legend(loc='upper left')
+elif option_1 == 'Deaths':
+	#fig, ax = plt.subplots(ncols=2, nrows=1, figsize=(15, 6))
+	ax[0].set_title('Deaths')
+	ax[0].plot(deaths_predict, c='r', label='LSTM acumulated deaths predictions')
+	ax[0].plot(actual_deaths, c='b', label='Actual Data')
+	ax[0].axvline(x=deaths_size, linestyle='--')
+	ax[0].legend(loc='upper left')
+	#ax[1].set_title('Deaths')
+	#ax[1].plot(deaths_predict, c='r', label='LSTM acumulated deaths predictions')
+	#ax[1].plot(actual_deaths, c='b', label='Actual Data')
+	#ax[1].axvline(x=deaths_size, linestyle='--')
+	#ax[1].legend(loc='upper left')
+
+
+######################################################
+
+#ax[0][2].set_title('Growth Factor')
+#ax[0][2].plot(growth, c='r', label='Growth Factor')
 #ax[0][2].plot(actual_deaths, c='b', label='Actual Data')
-ax[0][2].axvline(x=cases_size, linestyle='--')
-ax[0][2].legend(loc='upper left')
+#ax[0][2].axvline(x=cases_size, linestyle='--')
+#ax[0][2].legend(loc='upper left')
 
 st.pyplot(fig)
 
