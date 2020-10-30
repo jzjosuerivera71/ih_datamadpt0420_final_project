@@ -11,7 +11,10 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+
+from scipy.optimize import curve_fit
 from sklearn.preprocessing import MinMaxScaler
+
 import torch
 import torch.nn as nn
 #%matplotlib inline
@@ -171,11 +174,46 @@ deaths_size = pp.Size(deaths_case)
 deaths_predict = pp.Prediction(deaths_case,deaths_model_path)
 actual_deaths = pp.Actual(deaths_case)
 
+
+#################################################
+
 # ANALISIS
+
+#x_data = range(len(country_data.index))
+#y_data = country_data['Confirmed']
+
+x_data = range(len(state_case))
+y_data = state_case
+
+def log_curve(x, k, x_0, ymax):
+    return ymax / (1 + np.exp(-k*(x-x_0)))
+    
+# Fit the curve
+popt, pcov = curve_fit(log_curve, x_data, y_data, bounds=([0,0,0],np.inf), maxfev=50000)
+estimated_k, estimated_x_0, ymax= popt
+
+
+
+# Plot the fitted curve
+k = estimated_k
+x_0 = estimated_x_0
+y_fitted = log_curve(cases_size, k, x_0, ymax)
+#print(k, x_0, ymax)
+#print(y_fitted)
+#y_data.tail()
+
+
+# Plot everything for illustration
+#fig = plt.figure()
+#ax = fig.add_subplot(111)
+#ax.plot(range(0,350), y_fitted, '--', label='fitted')
+#ax.plot(x_data, y_data, 'o', label='Confirmed Data')
+
+
 
 #growth = an.growth_factor(cases_predict)
 #an.growth_ratio(confirmed)
-
+###################################################################
 
 # PLOT
 
@@ -183,16 +221,16 @@ plt.style.use('fivethirtyeight')
 fig, ax = plt.subplots(ncols=2, nrows=1, figsize=(15, 6))
 if  option_1 == 'Cases':
 	#fig, ax = plt.subplots(ncols=2, nrows=1, figsize=(15, 6))
-	ax[0].set_title('Cases')
+	ax[0].set_title('LSTM')
 	ax[0].plot(cases_predict, c='r', label='LSTM acumulated cases predictions')
 	ax[0].plot(actual_cases, c='b', label='Actual Data')
 	ax[0].axvline(x=cases_size, linestyle='--')
 	ax[0].legend(loc='upper left')
-	#ax[1].set_title('Deaths')
-	#ax[1].plot(deaths_predict, c='r', label='LSTM acumulated deaths predictions')
-	#ax[1].plot(actual_deaths, c='b', label='Actual Data')
-	#ax[1].axvline(x=deaths_size, linestyle='--')
-	#ax[1].legend(loc='upper left')
+	ax[1].set_title('Sigmoidal')
+	ax[1].plot(y_fitted, c='r', label='Sigmoidal acumulated cases predictions')
+	ax[1].plot(actual_cases, c='b', label='Actual Data')
+	ax[1].axvline(x=cases_size, linestyle='--')
+	ax[1].legend(loc='upper left')
 elif option_1 == 'Deaths':
 	#fig, ax = plt.subplots(ncols=2, nrows=1, figsize=(15, 6))
 	ax[0].set_title('Deaths')
