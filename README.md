@@ -1,20 +1,23 @@
-# LSTM neural network for timeseries evolution of Coronavirus.
+# LSTM neural network pipeline for evolution forecast of COVID-19.
+
+![Image](https://www.compromisorse.com/upload/noticias/027/27772/shutterstock_1654034092_lh.jpg)
 
 ## **Introduction.**
 
 ### Problem description:
 
-The main idea of the project is to train several recurrent neural networks to be able to predict the evolution of Covid19 as accurately as possible. This will help us to make better decisions about population control.
+The main idea of the project is to train several recurrent neural networks to be able to predict the evolution of Covid19 as accurately as possible. This will help us to make better decisions about population control. Training and testing dataset is from USA.
 
 ### Original Model.
 
 From this differntial equation:
 
-- <img src="https://latex.codecogs.com/gif.latex?\partial_t f = f(t)(N - f(t)) \text { growth equation } " /> 
+- <img src="https://latex.codecogs.com/gif.latex? $$\partial_tf = f(t)(N - f(t))\text{ growth equation }$$ " /> 
 
 we can deduce the solution that we use to do the sigmoidal regression. This regression is the most used for this type of analisis.
 
-- <img src="https://latex.codecogs.com/gif.latex?f(t) = \frac {N}{1 + e^{-k(t - t_0)}}  \text {solution} " />
+- <img src="https://latex.codecogs.com/gif.latex? $$f(t) = \frac {N}{1 + e^{-k(t - t_0)}}\text {solution}$$ " />
+
 
 This model is very useful but there is some limitations, especialy in the fluctuations of the growth.
 
